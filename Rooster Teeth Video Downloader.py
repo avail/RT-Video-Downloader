@@ -1,14 +1,15 @@
 def roosterTeethDownloader():
+    # This is the main function. It basically just acts as a menu for getLinks and mkvMuxer.
     menuOptions = {'d' : 'to enter in a .m3u8 playlist and download a video',\
                    'm' : 'to use MkvToolNix to mux downloaded files into a mkv',\
                    'x' : 'to exit'}
     looping = True
     
-    while (looping):
+    while (looping): # Loops the options until its told to quit.
         response = validInput('Pick an option:', menuOptions)
         
         if response == 'd':
-            videoName = cleanVideoName(input('\nEnter the name of the video you want to download:\n'))
+            videoName = cleanVideoName(input('\nEnter the name of the video you want to download:\n')) # Cleans up the entered video name to make sure it doesn't contain spaces ect.
             url = input('\nEnter the url of the index.m3u8 file:\n')
 
             getLinks(videoName, url)
@@ -21,33 +22,34 @@ def roosterTeethDownloader():
             
             looping = False
 
-        print('')
+        print('') # I got it to print out a blank line at the end because it looks better.
 
 def getLinks(videoName, url):
+    # This function takes the name of a video and a url and gets to work fetching links.
     resolutions = {}
     files = []
     createFile = ''
     
-    if not url.endswith('/index.m3u8'):
+    if not url.endswith('/index.m3u8'): # Makes sure that the url links to an index playlist. I should probably loop this or something as well but I'll do that later.
         print('There was an error in the url.\nPlease try again.\n')
         return
     
-    if not url.startswith('http://'):
+    if not url.startswith('http://'): # Makes sure that if you copy-paste a url from a browser that doesn't display the http:// part it puts it in.
         url = 'http://' + url
         
-    rootUrl = url.replace('index.m3u8', '')
+    rootUrl = url.replace('index.m3u8', '') # Sets rootUrl to be the folder where all of the files are.
     print('\nDownloading index.m3u8 from ' + rootUrl + '...\n')
-    index = readUrl(url)
+    index = readUrl(url) # Loads index as the contents of the url.
     print(index)
 
-    resolutions = dictionarify(removeComments(index), 'P.m3u8')
+    resolutions = dictionarify(removeComments(index), 'P.m3u8') # Sets resolutions to an empty dictionary with the keys being each resolution (minus the P.m3u8 part).
 
-    chosenRes = validInput('Which resolution would you like to download?\nAvaliable resolutions:', resolutions)
+    chosenRes = validInput('Which resolution would you like to download?\nAvaliable resolutions:', resolutions) # Makes sure the input is only of the featured resolutions.
     videoTitle = videoName + '_-_' + chosenRes
     url = rootUrl + chosenRes + 'P.m3u8'
 
     print('\nDownloading ' + chosenRes + ' from ' + rootUrl + '...\n')
-    resolutionPlaylist = readUrl(url)
+    resolutionPlaylist = readUrl(url) # Sets resolution playlist to the contents of the chosen resoluton .m3u8 playlist.
     print(resolutionPlaylist)
 
     for file in removeComments(resolutionPlaylist):
@@ -73,26 +75,30 @@ def getLinks(videoName, url):
     print('')
 
 def mkvMuxer(folder):
+    # This function takes a folder and merges all the videos in it.
     import subprocess
 
-    writeOptionsFile(folder)
+    writeOptionsFile(folder) # Creates a mkvmerge-valid options file because I ran out of bytes to call with.
     
     print("\nMuxing 'downloads/" + folder + ".mkv'...")
-    subprocess.call('mkvmerge @downloads/' + folder + '/optionsFile.txt')
-    print("\nVideo 'downloads/" + folder + ".mkv' created.\n")
+    subprocess.call('mkvmerge @downloads/' + folder + '/optionsFile.txt') # Calls mkvmerge and points it to the optionsFile.
+    print("\nVideo 'downloads/" + folder + ".mkv' created.\n") # I chose not to have an options to delete the folder when its done as I didn't want to be liable for deleting someones stuff.
 
 def dictionarify(aList, remove):
+    # This function takes a list and a string of characters to remove and turns it into a dictionary.
     dictionary = {}
     for item in aList:
         dictionary[item.replace(remove, '')] = ''
     return dictionary
 
 def readUrl(url):
+    # This function takes a url and returns its contents, decoded into utf-8.
     import urllib.request
     
     return urllib.request.urlopen(url).read().decode('utf-8')
 
 def cleanVideoName(name):
+    # This function cleans up the video name using a list of banned characters.
     newName = name
     
     bannedChars = ['\\', '/', '*', '?', '"', '<', '>', '|']
@@ -108,6 +114,7 @@ def cleanVideoName(name):
     return name
 
 def chooseFolder():
+    # This function allows the user to select a folder in 'downloads'.
     import os
 
     checkFolder('downloads')
@@ -120,10 +127,11 @@ def chooseFolder():
     print("\nChoose the id of the folder in 'downloads' that contains the .ts files you want assembled:") 
     for folderName in range(0, len(folders)):
         if validFolder('downloads/' + folders[folderName]):
-            print(str(folderName + 1) + ': ' + folders[folderName])
+            print(str(folderName + 1) + ': ' + folders[folderName]) # This is a pretty bad system, because if theres an item in 'downloads' that isn't a folder (such as a .mkv file), it'll skip an id, which is kinda confusing for the user.
     return folders[int(input()) - 1]
 
 def removeComments(playlist):
+    # This function takes a raw playlist and returns it as a list, removing lines that are empty and start with a hash.
     playlist = playlist.split('\n')
     goodLines = []
     
@@ -134,14 +142,15 @@ def removeComments(playlist):
     return goodLines
 
 def writeOptionsFile(folder):
+    # This function takes a folder and writes a mkvmerge options file for it.
     import os
     
-    videos = os.listdir('downloads/' + folder)
+    videos = os.listdir('downloads/' + folder) # I should probably validate this so it checks if each item is a .ts file.
     options = 'downloads/' + folder + '/optionsFile.txt'
     print("\nWriting file '" + options + "'....")
     file = open(options, 'w')
 
-    file.write('--output\ndownloads/' + folder + '.mkv\n--language\n0\ceng\n--language\n1\cund\n(\n')
+    file.write('--output\ndownloads/' + folder + '.mkv\n--language\n0\ceng\n--language\n1\cund\n(\n') # Eutgh that syntax :/ .
     for video in videos:
         if video.endswith('.ts'):
             file.write('downloads/' + folder + '/' + video + '\n')
@@ -150,6 +159,7 @@ def writeOptionsFile(folder):
     file.close()
 
 def writeLinksFile(rootUrl, files, videoTitle):
+    # This function creates a .txt file in 'links' that contains the links of a video.
     checkFolder('links')
         
     fileName = 'links/' + videoTitle + '.txt'
@@ -162,6 +172,7 @@ def writeLinksFile(rootUrl, files, videoTitle):
     print("\n'" + fileName + "' created.\n")
 
 def download(rootUrl, files, videoTitle):
+    # This function requests and downloads the .ts files.
     import urllib.request
 
     checkFolder('downloads')
@@ -190,6 +201,7 @@ def download(rootUrl, files, videoTitle):
             looping = False
 
 def checkFolder(folder):
+    # This is a function I like a lot, it checks if a folder exists, and if it doesn't, it creates it and tells the user about it.
     import os
     
     if not os.path.exists(folder):
@@ -197,6 +209,7 @@ def checkFolder(folder):
         print("\nFolder '" + folder + "' created.")
 
 def validFolder(folder):
+    # I also like this one a lot. It uses try to check if an item is indeed a folder but listing its contents. I could have had it check for extensions, but that wouldn't have work if a file didn't have one.
     import os
     
     try:
@@ -206,6 +219,7 @@ def validFolder(folder):
         return False
 
 def validInput(prompt, options):
+    # This function takes a prompt and a dictionary of options and validates the input.
     goodInput = False
     string = prompt + '\n'
 
@@ -222,4 +236,4 @@ def validInput(prompt, options):
             
     return userInput.lower()
         
-roosterTeethDownloader()
+roosterTeethDownloader() # This starts the script.
