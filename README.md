@@ -11,7 +11,7 @@ As you can see, it loads an index.m3u8 file, more playlists for each video resol
 
 ![the index.m3u8 in python](https://cloud.githubusercontent.com/assets/13566135/8977656/3068e8ee-36ef-11e5-9411-331119d0365d.png)
 
-You can now enter in which resolution playlist you want to load. It then fetches the download links and gives you the options to download the files with python and create a text file of the links (it will create a folder called 'links' for this) in case you want to download them with a download manager. Either way, once the .ts files have been downloaded into a folder in 'downloads', mkvmerge can be used to mux them all into a .mkv file by pressing 'm' on the main menu:
+You can now enter in which resolution playlist you want to load. It then fetches the download links and gives you the options to download the files with python and create a text file of the links (it will create a folder called 'links' for this) in case you want to download them with a download manager. Either way, once the .ts files have been downloaded into a folder in 'downloads', <a href="https://www.bunkus.org/videotools/mkvtoolnix/">mkvmerge</a> can be used to mux them all into a .mkv file by pressing 'm' on the main menu:
 
 ![mkvmerge running in command prompt](https://cloud.githubusercontent.com/assets/13566135/8977947/ca7e3194-36f1-11e5-937c-861846592bcc.png)
 

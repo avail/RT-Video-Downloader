@@ -186,14 +186,14 @@ def download(rootUrl, files, videoTitle):
         urllib.request.urlretrieve(rootUrl + files[file], directory + '/' + files[file])
     print('\nVideo downloading completed.\n')
 
-    downloadOptions = {'a' : 'to assemble the files into a mkv with mkvmerge.',\
+    downloadOptions = {'a' : 'to mux the files into a mkv with mkvmerge.',\
                        'x' : 'to exit'}
     looping = True
     
     while (looping):
         response = validInput('Pick an option:', downloadOptions)
             
-        if response == 'a':
+        if response == 'm':
             mkvMuxer(videoTitle)
             print('')
         elif response == 'x':
