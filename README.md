@@ -14,3 +14,13 @@ As you can see, it loads an index.m3u8 file, more playlists for each video resol
 You can now enter in which resolution playlist you want to load. It then fetches the download links and gives you the options to download the files with python and create a text file of the links (it will create a folder called 'links' for this) in case you want to download them with a download manager. Either way, once the .ts files have been downloaded into a folder in 'downloads', mkvmerge can be used to mux them all into a .mkv file by pressing 'm' on the main menu:
 
 ![mkvmerge running in command prompt](https://cloud.githubusercontent.com/assets/13566135/8977947/ca7e3194-36f1-11e5-937c-861846592bcc.png)
+
+<h2>To-Do</h2>
+
+The things I have planned are:
+
+<ul>
+<li>To get some way of getting the index.m3u8 playlist from the main html file, so people can just input the page url. This seems really hard to do as I'd have to get the player that uses (JW Player) to play nice.</li>
+<li>To clean-up and document the code (which I can't be bothered doing right now).</li>
+<li>To get python to download the .ts files in parallel (so its atleast comparable to a download manager).</li>
+</ul>
