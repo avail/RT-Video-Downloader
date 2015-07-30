@@ -21,6 +21,6 @@ The things I have planned are:
 
 <ul>
 <li>To get some way of getting the index.m3u8 playlist from the main html file, so people can just input the page url. This seems really hard to do as I'd have to get the player that uses (JW Player) to play nice.</li>
-<li>To clean-up and document the code (which I can't be bothered doing right now).</li>
+<li>To clean-up the code (which I can't be bothered doing right now).</li>
 <li>To get python to download the .ts files in parallel (so its atleast comparable to a download manager).</li>
 </ul>
