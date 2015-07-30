@@ -72,8 +72,6 @@ def getLinks(videoName, url):
         elif response == 'x':
             looping = False
 
-    print('')
-
 def mkvMuxer(folder):
     # This function takes a folder and merges all the videos in it.
     import subprocess
@@ -82,7 +80,7 @@ def mkvMuxer(folder):
     
     print("\nMuxing 'downloads/" + folder + ".mkv'...")
     subprocess.call('mkvmerge @downloads/' + folder + '/optionsFile.txt') # Calls mkvmerge and points it to the optionsFile.
-    print("\nVideo 'downloads/" + folder + ".mkv' created.\n") # I chose not to have an options to delete the folder when its done as I didn't want to be liable for deleting someones stuff.
+    print("\nVideo 'downloads/" + folder + ".mkv' created.") # I chose not to have an options to delete the folder when its done as I didn't want to be liable for deleting someones stuff.
 
 def dictionarify(aList, remove):
     # This function takes a list and a string of characters to remove and turns it into a dictionary.
@@ -197,8 +195,11 @@ def download(rootUrl, files, videoTitle):
             
         if response == 'a':
             mkvMuxer(videoTitle)
+            print('')
         elif response == 'x':
             looping = False
+
+    print('') # Again, I print out a blank space so that it looks nicer.
 
 def checkFolder(folder):
     # This is a function I like a lot, it checks if a folder exists, and if it doesn't, it creates it and tells the user about it.
