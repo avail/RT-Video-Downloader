@@ -1,15 +1,34 @@
 def roosterTeethDownloader():
     # This is the main function. It basically just acts as a menu for getLinks and mkvMuxer.
-    menuOptions = {'d' : 'to enter in a .m3u8 playlist and download a video',\
-                   'm' : 'to use MkvToolNix to mux downloaded files into a mkv',\
-                   'x' : 'to exit'}
+    menuOptions = {'d' : 'to enter in the url of a video and download it.',\
+                   'i' : 'to manually enter in a index.m3u8 playlist and download a video. This is useful for downloading subscriber-only videos.',\
+                   'm' : 'to use MkvToolNix to mux downloaded files into a mkv.',\
+                   'x' : 'to exit.'}
     looping = True
     
     while (looping): # Loops the options until its told to quit.
         response = validInput('Pick an option:', menuOptions)
-        
+
         if response == 'd':
-            videoName = cleanVideoName(input('\nEnter the name of the video you want to download:\n')) # Cleans up the entered video name to make sure it doesn't contain spaces ect.
+            url = input('\nEnter the url of the video:\n')
+            
+            indexFile, videoName = getIndexFile(url)
+            
+            if indexFile == '':
+                print('An index.m3u8 file was not found. Please check that you have entered the correct url.')
+                return
+
+            print('\nIndex file found at:\n' + indexFile + '\n')
+            
+            if videoName == '':
+                videoName = input('No video name found. Please enter one manually:\n')
+
+            videoName = cleanVideoName(videoName) # Cleans up the video name to make sure it doesn't contain spaces ect.
+            
+            getLinks(videoName, indexFile)
+    
+        elif response == 'i':
+            videoName = cleanVideoName(input('\nEnter the name of the video you want to download:\n'))
             url = input('\nEnter the url of the index.m3u8 file:\n')
 
             getLinks(videoName, url)
@@ -90,10 +109,12 @@ def dictionarify(aList, remove):
     return dictionary
 
 def readUrl(url):
-    # This function takes a url and returns its contents, decoded into utf-8.
+    # This function requests a url (with firefox headers, roosterteeth.com rejects the default python headers) and returns its contents, decoded into utf-8.
     import urllib.request
-    
-    return urllib.request.urlopen(url).read().decode('utf-8')
+
+    headers = {"User-Agent" : "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:39.0) Gecko/20100101 Firefox/39.0"}
+    urlRequest = urllib.request.Request(url, headers = headers)
+    return urllib.request.urlopen(urlRequest).read().decode('utf-8')
 
 def cleanVideoName(name):
     # This function cleans up the video name using a list of banned characters.
@@ -186,7 +207,7 @@ def download(rootUrl, files, videoTitle):
         urllib.request.urlretrieve(rootUrl + files[file], directory + '/' + files[file])
     print('\nVideo downloading completed.\n')
 
-    downloadOptions = {'a' : 'to mux the files into a mkv with mkvmerge.',\
+    downloadOptions = {'m' : 'to mux the files into a mkv with mkvmerge.',\
                        'x' : 'to exit'}
     looping = True
     
@@ -236,5 +257,18 @@ def validInput(prompt, options):
                 break
             
     return userInput.lower()
-        
+
+def getIndexFile(url):
+    videoPage = readUrl(url).split('\n')
+    indexFile = ''
+    videoName = ''
+
+    for line in videoPage: # Sets indexFile and videoName to items in a jwplayer <script> tag in the html.
+        if line.startswith('                                    manifest: '):
+            indexFile = line.replace('                                    manifest: ', '')[1:-2]
+        elif line.startswith('                                videoTitle: '):
+            videoName = line.replace('                                videoTitle: ', '')[1:-2]
+            
+    return indexFile, videoName
+
 roosterTeethDownloader() # This starts the script.
