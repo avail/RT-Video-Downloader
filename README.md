@@ -16,6 +16,7 @@ You can now enter in which resolution playlist you want to load. It then fetches
 <ul>
 <li>If you want to download a video that is subscribers-only, don't worry. You'll need someone who has access to the video to send the url of the index file to you, after which you can download the files by pressing 'i' on the main menu.
 <li>This is probably common sense, but this only works for videos that use jwplayer. If theres a video that you see using the youtube interface, it's hosted there and this script won't download it.</li>
+<li>Despite the fact that they are called 480p in the playlist files, the videos assigned as being 480p are actually 360p.</li>
 </ul>
 
 <h2>To-Do</h2>
