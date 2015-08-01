@@ -11,7 +11,12 @@ You can now enter in which resolution playlist you want to load. It then fetches
 
 ![mkvmerge running in command prompt](https://cloud.githubusercontent.com/assets/13566135/8977947/ca7e3194-36f1-11e5-937c-861846592bcc.png)
 
-If you want to download a video that is subscribers-only, don't worry. You'll need someone who has access to the video to send the url of the index file to you, after which you can download the files by pressing 'i' on the main menu.
+<h2>Notes</h2>
+
+<ul>
+<li>If you want to download a video that is subscribers-only, don't worry. You'll need someone who has access to the video to send the url of the index file to you, after which you can download the files by pressing 'i' on the main menu.
+<li>This is probably common sense, but this only works for videos that use jwplayer. If theres a video that you see using the youtube interface, it's hosted there and this script won't download it.</li>
+</ul>
 
 <h2>To-Do</h2>
 
