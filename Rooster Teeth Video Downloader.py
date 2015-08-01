@@ -1,12 +1,12 @@
 def roosterTeethDownloader():
-    # This is the main function. It basically just acts as a menu for getLinks and mkvMuxer.
+    # This is the main function. It basically just acts as a menu for other functions
     menuOptions = {'d' : 'to enter in the url of a video and download it.',\
                    'i' : 'to manually enter in a index.m3u8 playlist and download a video. This is useful for downloading subscriber-only videos.',\
                    'm' : 'to use MkvToolNix to mux downloaded files into a mkv.',\
                    'x' : 'to exit.'}
     looping = True
     
-    while (looping): # Loops the options until its told to quit.
+    while (looping): # Loops the options until it is told to quit.
         response = validInput('Pick an option:', menuOptions)
 
         if response == 'd':
@@ -23,7 +23,7 @@ def roosterTeethDownloader():
             if videoName == '':
                 videoName = input('No video name found. Please enter one manually:\n')
 
-            videoName = cleanVideoName(videoName) # Cleans up the video name to make sure it doesn't contain spaces ect.
+            videoName = cleanVideoName(videoName) # Cleans up the video name to make sure it doesn't contain spaces etc.
             
             getLinks(videoName, indexFile)
     
@@ -41,7 +41,7 @@ def roosterTeethDownloader():
             
             looping = False
 
-        print('') # I got it to print out a blank line at the end because it looks better.
+        print('') # Prints out a blank line at the end because it looks better.
 
 def getLinks(videoName, url):
     # This function takes the name of a video and a url and gets to work fetching links.
@@ -49,14 +49,14 @@ def getLinks(videoName, url):
     files = []
     createFile = ''
     
-    if not url.endswith('/index.m3u8'): # Makes sure that the url links to an index playlist. I should probably loop this or something as well but I'll do that later.
+    if not url.endswith('/index.m3u8'): # Makes sure that the url links to an index playlist.
         print('There was an error in the url.\nPlease try again.\n')
         return
     
-    if not url.startswith('http://'): # Makes sure that if you copy-paste a url from a browser that doesn't display the http:// part it puts it in.
+    if not url.startswith('http://'): # Makes sure that if you copy-paste a url from a browser that doesn't display the 'http://' part it puts it in.
         url = 'http://' + url
         
-    rootUrl = url.replace('index.m3u8', '') # Sets rootUrl to be the folder where all of the files are.
+    rootUrl = url.replace('index.m3u8', '') # Sets rootUrl to be the root 'folder' where all of the files are.
     print('\nDownloading index.m3u8 from ' + rootUrl + '...\n')
     index = readUrl(url) # Loads index as the contents of the url.
     print(index)
@@ -67,7 +67,7 @@ def getLinks(videoName, url):
     videoTitle = videoName + '_-_' + chosenRes
     url = rootUrl + chosenRes + 'P.m3u8'
 
-    print('\nDownloading ' + chosenRes + ' from ' + rootUrl + '...\n')
+    print('\nDownloading ' + chosenRes + 'P.m3u8 from ' + rootUrl + '...\n')
     resolutionPlaylist = readUrl(url) # Sets resolution playlist to the contents of the chosen resoluton .m3u8 playlist.
     print(resolutionPlaylist)
 
@@ -95,11 +95,11 @@ def mkvMuxer(folder):
     # This function takes a folder and merges all the videos in it.
     import subprocess
 
-    writeOptionsFile(folder) # Creates a mkvmerge-valid options file because I ran out of bytes to call with.
+    writeOptionsFile(folder) # Creates a mkvmerge-valid options file that it tells mkvmerge to access (I ran out of bytes to call the whole thing with).
     
     print("\nMuxing 'downloads/" + folder + ".mkv'...")
     subprocess.call('mkvmerge @downloads/' + folder + '/optionsFile.txt') # Calls mkvmerge and points it to the optionsFile.
-    print("\nVideo 'downloads/" + folder + ".mkv' created.") # I chose not to have an options to delete the folder when its done as I didn't want to be liable for deleting someones stuff.
+    print("\nVideo 'downloads/" + folder + ".mkv' created.")
 
 def dictionarify(aList, remove):
     # This function takes a list and a string of characters to remove and turns it into a dictionary.
@@ -120,9 +120,7 @@ def cleanVideoName(name):
     # This function cleans up the video name using a list of banned characters.
     newName = name
     
-    bannedChars = ['\\', '/', '*', '?', '"', '<', '>', '|']
-
-    for char in bannedChars:
+    for char in ['\\', '/', '*', '?', '"', '<', '>', '|']:
         newName = newName.replace(char, '')
 
     newName = newName.replace(':', ' -').replace(' ', '_')
@@ -146,7 +144,7 @@ def chooseFolder():
     print("\nChoose the id of the folder in 'downloads' that contains the .ts files you want assembled:") 
     for folderName in range(0, len(folders)):
         if validFolder('downloads/' + folders[folderName]):
-            print(str(folderName + 1) + ': ' + folders[folderName]) # This is a pretty bad system, because if theres an item in 'downloads' that isn't a folder (such as a .mkv file), it'll skip an id, which is kinda confusing for the user.
+            print(str(folderName + 1) + ': ' + folders[folderName]) # This is a pretty bad system, because if theres an item in 'downloads' that isn't a folder (such as a .mkv file), it'll skip an id, which is pretty wierd. Will fix up soon(tm).
     return folders[int(input()) - 1]
 
 def removeComments(playlist):
@@ -259,6 +257,7 @@ def validInput(prompt, options):
     return userInput.lower()
 
 def getIndexFile(url):
+    # This function takes the url of a video page and returns the url of the index file and the name of the video.
     videoPage = readUrl(url).split('\n')
     indexFile = ''
     videoName = ''
