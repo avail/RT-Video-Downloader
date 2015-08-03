@@ -11,10 +11,6 @@ def roosterTeethDownloader():
 
         if response == 'D':
             url = input('\nEnter the url of the video:\n')
-
-            if not url.endswith('/index.m3u8'): # Makes sure that the url links to an index playlist.
-                print('There was an error in the url.\nPlease try again.\n')
-                return roosterTeethDownloader()
     
             if not url.startswith('http://'): # Makes sure that if you copy-paste a url from a browser that doesn't display the 'http://' part it puts it in.
                 url = 'http://' + url
