@@ -10,15 +10,12 @@ def roosterTeethDownloader():
         response = validInput('Pick an option:', menuOptions)
 
         if response == 'D':
-            url = input('\nEnter the url of the video:\n')
-    
-            if not url.startswith('http://'): # Makes sure that if you copy-paste a url from a browser that doesn't display the 'http://' part it puts it in.
-                url = 'http://' + url
+            url = addHttp(input('\nEnter the url of the video:\n'))
             
             indexFile, videoName = getIndexFile(url)
             
             if indexFile == '':
-                print('An index.m3u8 file was not found. Please check that you have entered the correct url.')
+                print('An index.m3u8 file was not found. Please check that you have entered the correct url and that the video isn\'t on youtube instead.\n')
                 return roosterTeethDownloader()
 
             print('\nIndex file found at:\n' + indexFile + '\n')
@@ -32,14 +29,11 @@ def roosterTeethDownloader():
     
         elif response == 'I':
             videoName = cleanVideoName(input('\nEnter the name of the video you want to download:\n'))
-            url = input('\nEnter the url of the index.m3u8 file:\n')
+            url = addHttp(input('\nEnter the url of the index.m3u8 file:\n'))
 
             if not url.endswith('/index.m3u8'): # Makes sure that the url links to an index playlist.
                 print('There was an error in the url.\nPlease try again.\n')
                 return roosterTeethDownloader()
-    
-            if not url.startswith('http://'): # Makes sure that if you copy-paste a url from a browser that doesn't display the 'http://' part it puts it in.
-                url = 'http://' + url
 
             getLinks(videoName, url)
             
@@ -144,7 +138,7 @@ def chooseFolder():
         print("There are no folders in 'downloads'. Please download a video or add a folder to that location.")
         return
     
-    print("\nChoose the id of the folder in 'downloads' that contains the .ts files you want assembled:") 
+    print("\nChoose the id of the folder in 'downloads' that contains the .ts files you want muxed:") 
     for folderName in range(0, len(folders)):
         if validFolder('downloads/' + folders[folderName]):
             print(str(folderName + 1) + ': ' + folders[folderName]) # This is a pretty bad system, because if theres an item in 'downloads' that isn't a folder (such as a .mkv file), it'll skip an id, which is pretty wierd. Will fix up soon(tm).
@@ -258,6 +252,12 @@ def validInput(prompt, options):
                 break
             
     return userInput
+
+def addHttp(url):
+    # This function makes sure that if you copy-paste a url from a browser that doesn't display the 'http://' part it puts it in.
+    if not (url.startswith('http://') or url.startswith('https://')):
+        url = 'http://' + url
+    return url
 
 def getIndexFile(url):
     # This function takes the url of a video page and returns the url of the index file and the name of the video.
