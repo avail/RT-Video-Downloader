@@ -1,22 +1,29 @@
 def roosterTeethDownloader():
     # This is the main function. It basically just acts as a menu for other functions
-    menuOptions = {'d' : 'to enter in the url of a video and download it.',\
-                   'i' : 'to manually enter in a index.m3u8 playlist and download a video. This is useful for downloading subscriber-only videos.',\
-                   'm' : 'to use MkvToolNix to mux downloaded files into a mkv.',\
-                   'x' : 'to exit.'}
+    menuOptions = {'D' : 'to enter in the url of a video and download it.',\
+                   'I' : 'to manually enter in a index.m3u8 playlist and download a video. This is useful for downloading subscriber-only videos.',\
+                   'M' : 'to use MkvToolNix to mux downloaded files into a mkv.',\
+                   'X' : 'to exit.'}
     looping = True
     
     while (looping): # Loops the options until it is told to quit.
         response = validInput('Pick an option:', menuOptions)
 
-        if response == 'd':
+        if response == 'D':
             url = input('\nEnter the url of the video:\n')
+
+            if not url.endswith('/index.m3u8'): # Makes sure that the url links to an index playlist.
+                print('There was an error in the url.\nPlease try again.\n')
+                return roosterTeethDownloader()
+    
+            if not url.startswith('http://'): # Makes sure that if you copy-paste a url from a browser that doesn't display the 'http://' part it puts it in.
+                url = 'http://' + url
             
             indexFile, videoName = getIndexFile(url)
             
             if indexFile == '':
                 print('An index.m3u8 file was not found. Please check that you have entered the correct url.')
-                return
+                return roosterTeethDownloader()
 
             print('\nIndex file found at:\n' + indexFile + '\n')
             
@@ -27,17 +34,24 @@ def roosterTeethDownloader():
             
             getLinks(videoName, indexFile)
     
-        elif response == 'i':
+        elif response == 'I':
             videoName = cleanVideoName(input('\nEnter the name of the video you want to download:\n'))
             url = input('\nEnter the url of the index.m3u8 file:\n')
 
+            if not url.endswith('/index.m3u8'): # Makes sure that the url links to an index playlist.
+                print('There was an error in the url.\nPlease try again.\n')
+                return roosterTeethDownloader()
+    
+            if not url.startswith('http://'): # Makes sure that if you copy-paste a url from a browser that doesn't display the 'http://' part it puts it in.
+                url = 'http://' + url
+
             getLinks(videoName, url)
             
-        elif response == 'm':
+        elif response == 'M':
             
             mkvMuxer(chooseFolder())
             
-        elif response == 'x':
+        elif response == 'X':
             
             looping = False
 
@@ -48,13 +62,6 @@ def getLinks(videoName, url):
     resolutions = {}
     files = []
     createFile = ''
-    
-    if not url.endswith('/index.m3u8'): # Makes sure that the url links to an index playlist.
-        print('There was an error in the url.\nPlease try again.\n')
-        return
-    
-    if not url.startswith('http://'): # Makes sure that if you copy-paste a url from a browser that doesn't display the 'http://' part it puts it in.
-        url = 'http://' + url
         
     rootUrl = url.replace('index.m3u8', '') # Sets rootUrl to be the root 'folder' where all of the files are.
     print('\nDownloading index.m3u8 from ' + rootUrl + '...\n')
@@ -76,19 +83,19 @@ def getLinks(videoName, url):
         
     print(str(len(files)) + ' files found (it begins with ' + files[0] + ').\n')
 
-    downloadOptions = {'d' : 'to download the files with python. This may be slower than using a download manager.',\
-                       't' : 'to create a text file of the download links.',\
-                        'x' : 'to exit'}
+    downloadOptions = {'D' : 'to download the files with python. This may be slower than using a download manager.',\
+                       'T' : 'to create a text file of the download links.',\
+                        'X' : 'to exit'}
     looping = True
     
     while (looping):
         response = validInput('Pick an option:', downloadOptions)
             
-        if response == 'd':
+        if response == 'D':
             download(rootUrl, files, videoTitle)
-        elif response == 't':
+        elif response == 'T':
             writeLinksFile(rootUrl, files, videoTitle)
-        elif response == 'x':
+        elif response == 'X':
             looping = False
 
 def mkvMuxer(folder):
@@ -120,7 +127,7 @@ def cleanVideoName(name):
     # This function cleans up the video name using a list of banned characters.
     newName = name
     
-    for char in ['\\', '/', '*', '?', '"', '<', '>', '|']:
+    for char in ['\\', '/', '*', '?', '"', '<', '>', '|', '&quot;']:
         newName = newName.replace(char, '')
 
     newName = newName.replace(':', ' -').replace(' ', '_')
@@ -205,17 +212,17 @@ def download(rootUrl, files, videoTitle):
         urllib.request.urlretrieve(rootUrl + files[file], directory + '/' + files[file])
     print('\nVideo downloading completed.\n')
 
-    downloadOptions = {'m' : 'to mux the files into a mkv with mkvmerge.',\
-                       'x' : 'to exit'}
+    downloadOptions = {'M' : 'to mux the files into a mkv with mkvmerge.',\
+                       'X' : 'to exit'}
     looping = True
     
     while (looping):
         response = validInput('Pick an option:', downloadOptions)
             
-        if response == 'm':
+        if response == 'M':
             mkvMuxer(videoTitle)
             print('')
-        elif response == 'x':
+        elif response == 'X':
             looping = False
 
     print('') # Again, I print out a blank space so that it looks nicer.
@@ -247,14 +254,14 @@ def validInput(prompt, options):
         string = string + option + ' ' + options[option] + '\n'
         
     while not goodInput:
-        userInput = input(string)
+        userInput = input(string).upper()
 
         for option in options:
-            if userInput == option:
+            if userInput == option.upper():
                 goodInput = True
                 break
             
-    return userInput.lower()
+    return userInput
 
 def getIndexFile(url):
     # This function takes the url of a video page and returns the url of the index file and the name of the video.
