@@ -90,13 +90,27 @@ def getLinks(videoName, url):
 
 def mkvMuxer(folder):
     # This function takes a folder and merges all the videos in it.
-    import subprocess
+    import subprocess, os
+
+    print(folder)
+
+    if folder == '':
+        return
 
     writeOptionsFile(folder) # Creates a mkvmerge-valid options file that it tells mkvmerge to access (I ran out of bytes to call the whole thing with).
     
     print("\nMuxing 'downloads/" + folder + ".mkv'...")
     subprocess.call('mkvmerge @downloads/' + folder + '/optionsFile.txt') # Calls mkvmerge and points it to the optionsFile.
-    print("\nVideo 'downloads/" + folder + ".mkv' created.")
+
+    videoCreated = False
+
+    for file in os.listdir('downloads'):
+        if file == folder + '.mkv':
+            print("\nVideo 'downloads/" + folder + ".mkv' created.")
+            videoCreated = True
+
+    if not videoCreated:
+        print('An error occured in the muxing. Please check that the folder contains valid .ts files.')
 
 def dictionarify(aList, remove):
     # This function takes a list and a string of characters to remove and turns it into a dictionary.
@@ -134,15 +148,25 @@ def chooseFolder():
     checkFolder('downloads')
     
     folders = os.listdir('downloads')
-    if folders == []:
-        print("There are no folders in 'downloads'. Please download a video or add a folder to that location.")
-        return
+    validFolders = []
     
+    for folderName in folders:
+        if validFolder('downloads/' + folderName):
+            validFolders = validFolders + [folderName]
+    folders = validFolders
+    
+    if folders == []:
+        print("There are no valid folders in 'downloads'. Please download a video or add a folder to that location.")
+        return ''
+
     print("\nChoose the id of the folder in 'downloads' that contains the .ts files you want muxed:") 
-    for folderName in range(0, len(folders)):
-        if validFolder('downloads/' + folders[folderName]):
-            print(str(folderName + 1) + ': ' + folders[folderName]) # This is a pretty bad system, because if theres an item in 'downloads' that isn't a folder (such as a .mkv file), it'll skip an id, which is pretty wierd. Will fix up soon(tm).
-    return folders[int(input()) - 1]
+        
+    for name in range(0, len(folders)):
+        print(str(name + 1) + ': ' + folders[name])
+
+    fol = folders[int(input()) - 1]
+    print(fol)
+    return fol
 
 def removeComments(playlist):
     # This function takes a raw playlist and returns it as a list, removing lines that are empty and start with a hash.
@@ -231,7 +255,7 @@ def validFolder(folder):
     
     try:
         os.listdir(folder)
-        return True
+        return not os.listdir(folder) == []
     except NotADirectoryError:
         return False
 
