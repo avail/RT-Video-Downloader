@@ -49,10 +49,8 @@ def roosterTeethDownloader():
 
 def getLinks(videoName, url):
     # This function takes the name of a video and a url and gets to work fetching links.
-    resolutions = {}
-    files = []
-    createFile = ''
-        
+    resolutions, files, createFile = {}, [], ''
+
     rootUrl = url.replace('index.m3u8', '') # Sets rootUrl to be the root 'folder' where all of the files are.
     print('\nDownloading index.m3u8 from ' + rootUrl + '...\n')
     index = readUrl(url) # Loads index as the contents of the url.
@@ -91,8 +89,6 @@ def getLinks(videoName, url):
 def mkvMuxer(folder):
     # This function takes a folder and merges all the videos in it.
     import subprocess, os
-
-    print(folder)
 
     if folder == '':
         return
@@ -164,9 +160,7 @@ def chooseFolder():
     for name in range(0, len(folders)):
         print(str(name + 1) + ': ' + folders[name])
 
-    fol = folders[int(input()) - 1]
-    print(fol)
-    return fol
+    return folders[int(input()) - 1]
 
 def removeComments(playlist):
     # This function takes a raw playlist and returns it as a list, removing lines that are empty and start with a hash.
@@ -186,6 +180,7 @@ def writeOptionsFile(folder):
     videos = os.listdir('downloads/' + folder) # I should probably validate this so it checks if each item is a .ts file.
     options = 'downloads/' + folder + '/optionsFile.txt'
     print("\nWriting file '" + options + "'....")
+    
     file = open(options, 'w')
 
     file.write('--output\ndownloads/' + folder + '.mkv\n--language\n0\ceng\n--language\n1\cund\n(\n') # Eutgh that syntax :/ .
@@ -229,7 +224,6 @@ def download(rootUrl, files, videoTitle):
     downloadOptions = {'M' : 'to mux the files into a mkv with mkvmerge.',\
                        'X' : 'to exit'}
     looping = True
-    
     while (looping):
         response = validInput('Pick an option:', downloadOptions)
             
@@ -242,7 +236,7 @@ def download(rootUrl, files, videoTitle):
     print('') # Again, I print out a blank space so that it looks nicer.
 
 def checkFolder(folder):
-    # This is a function I like a lot, it checks if a folder exists, and if it doesn't, it creates it and tells the user about it.
+    # This function checks if a folder exists, and if it doesn't, it creates it and tells the user about it.
     import os
     
     if not os.path.exists(folder):
@@ -250,7 +244,7 @@ def checkFolder(folder):
         print("\nFolder '" + folder + "' created.")
 
 def validFolder(folder):
-    # I also like this one a lot. It uses try to check if an item is indeed a folder but listing its contents. I could have had it check for extensions, but that wouldn't have work if a file didn't have one.
+    # This function uses try to check if an item is indeed a folder but listing its contents. I could have had it check for extensions, but that wouldn't have work if a file didn't have one.
     import os
     
     try:
@@ -286,9 +280,8 @@ def addHttp(url):
 def getIndexFile(url):
     # This function takes the url of a video page and returns the url of the index file and the name of the video.
     videoPage = readUrl(url).split('\n')
-    indexFile = ''
-    videoName = ''
-
+    indexFile, videoName = '', ''
+    
     for line in videoPage: # Sets indexFile and videoName to items in a jwplayer <script> tag in the html.
         if line.startswith('                                    manifest: '):
             indexFile = line.replace('                                    manifest: ', '')[1:-2]
