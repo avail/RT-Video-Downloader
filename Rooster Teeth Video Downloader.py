@@ -233,16 +233,20 @@ def addHttp(url): # This function makes sure that if you copy-paste a url from a
 def getIndexFile(url): # This function takes the url of a video page and returns the url of the index file and the name of the video.
     videoPage = readUrl(url).split('\n')
     indexFile, videoName = '', ''
-    
+
     for line in videoPage: # Sets indexFile and videoName to items in a jwplayer <script> tag in the html.
-        line = line.replace(' ', '')
+        for char in line:
+            if not char == ' ':
+                break
 
-        if line.startswith('manifest:'):
-            indexFile = line.strip('manifest:')[1:-2]
+            line = line[1:]
 
-        elif line.startswith('varvideoTitle='):
-            videoName = line.strip('varvideoTitle=')[1:-2]
-       
+        if line.startswith("file: 'http://wpc"):
+            indexFile = line.strip('file: ')[1:-2]
+
+        elif line.startswith('var videoTitle = '):
+            videoName = line.strip('var videoTitle = ')[1:-2]
+
     return indexFile, videoName
 
 roosterTeethDownloader() # This starts the script.
