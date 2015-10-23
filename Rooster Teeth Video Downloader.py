@@ -1,9 +1,10 @@
-import subprocess, os, urllib.request as http
+import subprocess, os, urllib.request as http, shutil
+from glob import iglob
 
 def roosterTeethDownloader(): # This is the main function. It basically just acts as a menu for other functions
     menuOptions = {'D' : 'to enter in the url of a video and download it.',\
                    'I' : 'to manually enter in a index.m3u8 playlist and download a video. This is useful for downloading subscriber-only videos.',\
-                   'M' : 'to use MkvToolNix to mux downloaded files into a mkv.',\
+                   'M' : 'to concatenate downloaded files into a single file.',\
                    'X' : 'to exit.'}
     looping = True
     
@@ -37,7 +38,7 @@ def roosterTeethDownloader(): # This is the main function. It basically just act
             getLinks(videoName, url)
             
         elif response == 'M':
-            mkvMuxer(chooseFolder())
+            concatenate(chooseFolder())
             
         elif response == 'X':
             looping = False
@@ -84,24 +85,14 @@ def getLinks(videoName, url): # This function takes the name of a video and a ur
         elif response == 'X':
             looping = False
 
-def mkvMuxer(folder): # This function takes a folder and merges all the videos in it.
+def concatenate(folder): # This function takes a folder and merges all the files in it.
     if folder == '':
         return
+    destination = open("downloads/"+folder+".ts", 'wb')
+    for filename in sorted(iglob(os.path.join(r'downloads/'+folder, '*.ts'))):
+        shutil.copyfileobj(open(filename, 'rb'), destination)
+    destination.close()
 
-    writeOptionsFile(folder) # Creates a mkvmerge-valid options file that it tells mkvmerge to access (I ran out of bytes to call the whole thing with).
-    
-    print("\nMuxing 'downloads/" + folder + ".mkv'...")
-    subprocess.call('mkvmerge @downloads/' + folder + '/optionsFile.txt') # Calls mkvmerge and points it to the optionsFile.
-
-    videoCreated = False
-
-    for file in os.listdir('downloads'):
-        if file == folder + '.mkv':
-            print("\nVideo 'downloads/" + folder + ".mkv' created.")
-            videoCreated = True
-
-    if not videoCreated:
-        print('An error occured in the muxing. Please check that the folder contains valid .ts files.')
 
 def dictionarify(aList, remove): # This function takes a list and a string of characters to remove and turns it into a dictionary.
     dictionary = {}
@@ -163,21 +154,6 @@ def removeComments(playlist): # This function takes a raw playlist and returns i
             
     return goodLines
 
-def writeOptionsFile(folder): # This function takes a folder and writes a mkvmerge options file for it.
-    videos = os.listdir('downloads/' + folder) # I should probably validate this so it checks if each item is a .ts file.
-    options = 'downloads/' + folder + '/optionsFile.txt'
-    print("\nWriting file '" + options + "'....")
-    
-    file = open(options, 'w')
-    file.write('--output\ndownloads/' + folder + '.mkv\n--language\n0\ceng\n--language\n1\cund\n(\n') # Eutgh that syntax :/ .
-
-    for video in videos:
-        if video.endswith('.ts'):
-            file.write('downloads/' + folder + '/' + video + '\n')
-
-    file.write(')\n--track-order\n0\c0,0\c1')
-    file.close()
-
 def writeLinksFile(rootUrl, files, videoTitle): # This function creates a .txt file in 'links' that contains the links of a video.
     checkFolder('links')
     fileName = 'links/' + videoTitle + '.txt'
@@ -202,7 +178,7 @@ def download(rootUrl, files, videoTitle): # This function requests and downloads
 
     print('\nVideo downloading completed.\n')
 
-    downloadOptions = {'M' : 'to mux the files into a mkv with mkvmerge.',\
+    downloadOptions = {'M' : 'to concatenate the files into a single file.',\
                        'X' : 'to exit'}
     looping = True
 
@@ -210,7 +186,7 @@ def download(rootUrl, files, videoTitle): # This function requests and downloads
         response = validInput('Pick an option:', downloadOptions)
             
         if response == 'M':
-            mkvMuxer(videoTitle)
+            concatenate(videoTitle)
             print('')
 
         elif response == 'X':
