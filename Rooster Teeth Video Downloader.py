@@ -92,6 +92,7 @@ def concatenate(folder): # This function takes a folder and merges all the files
     for filename in sorted(iglob(os.path.join(r'downloads/'+folder, '*.ts'))):
         shutil.copyfileobj(open(filename, 'rb'), destination)
     destination.close()
+    print('Concatenation completed.')
 
 
 def dictionarify(aList, remove): # This function takes a list and a string of characters to remove and turns it into a dictionary.
