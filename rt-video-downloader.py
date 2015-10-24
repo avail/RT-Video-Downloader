@@ -3,7 +3,7 @@ from glob import iglob
 
 def roosterTeethDownloader(): # This is the main function. It basically just acts as a menu for other functions
     menuOptions = {'D' : 'to enter in the url of a video and download it.',\
-                   'I' : 'to manually enter in a index.m3u8 playlist and download a video. This is useful for downloading subscriber-only videos.',\
+                   'I' : 'to manually enter in a index.m3u8 playlist and download a video.',\
                    'J' : 'to concatenate downloaded files into a single file.',\
                    'X' : 'to exit.'}
     looping = True
@@ -212,13 +212,13 @@ def validInput(prompt, options): # This function takes a prompt and a dictionary
     goodInput = False
     string = prompt + '\n'
 
-    for option in options:
+    for option in sorted(options):
         string = string + option + ' ' + options[option] + '\n'
         
     while not goodInput:
         userInput = input(string)
 
-        for option in sorted(options):
+        for option in options:
             if userInput.lower() == option.lower():
                 userInput = option
                 goodInput = True
