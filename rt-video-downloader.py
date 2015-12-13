@@ -1,4 +1,5 @@
 import subprocess, os, urllib.request as http, shutil
+import threading, time
 from glob import iglob
 
 def roosterTeethDownloader(): # This is the main function. It basically just acts as a menu for other functions
@@ -167,17 +168,54 @@ def writeLinksFile(rootUrl, files, videoTitle): # This function creates a .txt f
     file.close()
     print("\n'" + fileName + "' created.\n")
 
+
+def isInteger(i): # Checks if "i" is an integer. 
+
+    try:
+        int(i)
+        return True
+    except ValueError:
+        return False
+
+def threadDownload(rootUrl, files, directory, a, b):
+
+    for file in range(a, b):
+        print('Downloading ' + files[file] + ' (' + str(file + 1) + '/' + str(len(files)) + ')...')
+        http.urlretrieve(rootUrl + files[file], directory + '/' + files[file])
+
 def download(rootUrl, files, videoTitle): # This function requests and downloads the .ts files.
     checkFolder('downloads')
     directory = 'downloads/' + videoTitle
     checkFolder(directory)
     print('')
-    
-    for file in range(0, len(files)):
-        print('Downloading ' + files[file] + ' (' + str(file + 1) + '/' + str(len(files)) + ')...')
-        http.urlretrieve(rootUrl + files[file], directory + '/' + files[file])
 
-    print('\nVideo downloading completed.\n')
+    numThreads = 'NaN'
+    while (not isInteger(numThreads)):
+        numThreads = input('Give me a number of threads to use:')
+    
+    numThreads = int(numThreads)
+    filesPerThread = len(files) // numThreads # Integer division only.
+    remainderFiles = len(files) %  numThreads # Give these to last thread.
+    threadArray = []
+
+    start = time.time()    
+    for i in range(0, numThreads):
+        a = i * filesPerThread
+        b = a + filesPerThread
+        if i == numThreads - 1:
+            b += remainderFiles
+        t = threading.Thread(None, threadDownload, 'Spartacus', (rootUrl, files, directory, a, b), {})
+        print('Created thread ', i)
+        threadArray.append(t)
+        t.start()
+        print('Thread ', i, ' started.')
+
+    for i in range(0, numThreads):
+        threadArray[i].join()
+    
+    print('\nVideo downloading completed.')
+    end = time.time()
+    print('Time elapsed: ', end - start, 'sec\n')
 
     downloadOptions = {'J' : 'to concatenate the files into a single file.',\
                        'X' : 'to exit'}
